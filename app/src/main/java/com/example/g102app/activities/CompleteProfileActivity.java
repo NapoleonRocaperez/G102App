@@ -1,4 +1,4 @@
-package com.example.g102app;
+package com.example.g102app.activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,10 +9,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.example.g102app.R;
+import com.example.g102app.models.User;
+import com.example.g102app.providers.AuthProviders;
+import com.example.g102app.providers.UsersProviders;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -22,8 +25,8 @@ import java.util.Map;
 public class CompleteProfileActivity extends AppCompatActivity {
     TextInputEditText mTextInputEditTextUsername;
     Button mButtonConfirmar;
-    FirebaseAuth mAuth;
-    FirebaseFirestore mFirestore;
+    UsersProviders mUserProvider;
+    AuthProviders mAuthProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,8 +35,8 @@ public class CompleteProfileActivity extends AppCompatActivity {
         mTextInputEditTextUsername=findViewById(R.id.textImputUsernameC);
         mButtonConfirmar=findViewById(R.id.btnConfirmar);
 
-        mAuth=FirebaseAuth.getInstance();
-        mFirestore=FirebaseFirestore.getInstance();
+        mAuthProvider=new AuthProviders();
+        mUserProvider=new UsersProviders();
 
         mButtonConfirmar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -55,10 +58,13 @@ public class CompleteProfileActivity extends AppCompatActivity {
 
     private void updateUser(final String username) {
 
-                    String id=mAuth.getCurrentUser().getUid();
-                    Map<String,Object> map = new HashMap<>();
-                    map.put("username",username);
-                    mFirestore.collection("Users").document(id).update(map).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    String id=mAuthProvider.getUid();
+                    User user=new User();
+                    user.setUsername(username);
+                    user.setId(id);
+
+
+                    mUserProvider.update(user).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()){

@@ -1,4 +1,4 @@
-package com.example.g102app;
+package com.example.g102app.activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -8,7 +8,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.example.g102app.R;
+import com.example.g102app.models.User;
+import com.example.g102app.providers.AuthProviders;
+import com.example.g102app.providers.UsersProviders;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
@@ -31,8 +34,9 @@ public class RegisterActivity extends AppCompatActivity {
     TextInputEditText mTexInputPassword;
     TextInputEditText mTexInputConfirmPassword;
     Button mButtonRegister;
-    FirebaseAuth mAuth;
-    FirebaseFirestore mFirestore;
+    AuthProviders mAutProvider;
+    UsersProviders mUserProviders;
+
 
 
 
@@ -48,8 +52,9 @@ public class RegisterActivity extends AppCompatActivity {
         mButtonRegister=findViewById(R.id.btnregister);
         mTexInputEmail=findViewById(R.id.textInputEmailR);
 
-        mAuth=FirebaseAuth.getInstance();
-        mFirestore=FirebaseFirestore.getInstance();
+
+       mAutProvider=new AuthProviders();
+       mUserProviders=new UsersProviders();
 
 
 
@@ -101,16 +106,19 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void createUser(final String email,String password, final String username) {
-        mAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+        mAutProvider.register(email, password)
+        .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()){
-                    String id=mAuth.getCurrentUser().getUid();
-                    Map<String,Object> map = new HashMap<>();
-                    map.put("email",email);
-                    map.put("username",username);
-                    map.put("password",password);
-                    mFirestore.collection("Users").document(id).set(map).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    String id=mAutProvider.getUid();
+                    User user=new User();
+                    user.setId(id);
+                    user.setEmail(email);
+                    user.setUsername(username);
+                    user.setPassword(password);
+                    mUserProviders.create(user)
+                    .addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()){

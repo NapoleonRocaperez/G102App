@@ -1,8 +1,10 @@
-package com.example.g102app;
+package com.example.g102app.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+
+import com.example.g102app.R;
 
 public class HomeActivity extends AppCompatActivity {
 
