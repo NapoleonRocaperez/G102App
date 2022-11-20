@@ -3,6 +3,7 @@ package com.example.g102app.activities;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -22,11 +23,14 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.HashMap;
 import java.util.Map;
 
+import dmax.dialog.SpotsDialog;
+
 public class CompleteProfileActivity extends AppCompatActivity {
     TextInputEditText mTextInputEditTextUsername;
     Button mButtonConfirmar;
     UsersProviders mUserProvider;
     AuthProviders mAuthProvider;
+    AlertDialog mDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +41,12 @@ public class CompleteProfileActivity extends AppCompatActivity {
 
         mAuthProvider=new AuthProviders();
         mUserProvider=new UsersProviders();
+
+        mDialog = new SpotsDialog.Builder()
+                .setContext(this)
+                .setMessage("Espere un momento...")
+                .setCancelable(false).build();
+
 
         mButtonConfirmar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -62,12 +72,16 @@ public class CompleteProfileActivity extends AppCompatActivity {
                     User user=new User();
                     user.setUsername(username);
                     user.setId(id);
+                    mDialog.show();
+
 
 
                     mUserProvider.update(user).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
+                            mDialog.dismiss();
                             if (task.isSuccessful()){
+
                                 Intent intent =new Intent(CompleteProfileActivity.this,HomeActivity.class);
                                 startActivity(intent);
                                 Toast.makeText(CompleteProfileActivity.this, "El usuario se almaceno correctamente", Toast.LENGTH_SHORT).show();

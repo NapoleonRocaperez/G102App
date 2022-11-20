@@ -3,6 +3,7 @@ package com.example.g102app.activities;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -35,6 +36,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.HashMap;
 import java.util.Map;
 
+import dmax.dialog.SpotsDialog;
+
+
 public class MainActivity extends AppCompatActivity {
 
     TextView mTextViewRegister;
@@ -46,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private GoogleSignInClient mGoogleSignInClient;
     private final int REQUEST_CODE_GOOGLE=1;
     SignInButton mSignInButtonGooogle;
-
+    AlertDialog mDialog;
 
 
 
@@ -55,16 +59,21 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mTextViewRegister=findViewById(R.id.TextViewRegister);
-        mtextInputEmail=findViewById(R.id.textInputEmail);
-        mtextInputPassword=findViewById(R.id.textImputPassword);
-        mButtonLogin=findViewById(R.id.btnlogin);
-        mSignInButtonGooogle=findViewById(R.id.btnloginGoogle);
+        mTextViewRegister = findViewById(R.id.TextViewRegister);
+        mtextInputEmail = findViewById(R.id.textInputEmail);
+        mtextInputPassword = findViewById(R.id.textImputPassword);
+        mButtonLogin = findViewById(R.id.btnlogin);
+        mSignInButtonGooogle = findViewById(R.id.btnloginGoogle);
 
 
-        mAuthProvider=new AuthProviders();
+        mAuthProvider = new AuthProviders();
+        mUserProvider = new UsersProviders();
 
-        mUserProvider=new UsersProviders();
+        mDialog = new SpotsDialog.Builder()
+                .setContext(this)
+                .setMessage("Espere un momento...")
+                .setCancelable(false).build();
+
 
         mSignInButtonGooogle.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -126,6 +135,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount account) {
+        mDialog.show();
         mAuthProvider.googlelogin(account)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -138,6 +148,7 @@ public class MainActivity extends AppCompatActivity {
 
 
                         } else {
+                            mDialog.dismiss();
                             // If sign in fails, display a message to the user.
                             Log.w("ERROR", "signInWithCredential:failure", task.getException());
 
@@ -151,6 +162,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 if(documentSnapshot.exists()){
+                    mDialog.dismiss();
                     Intent intent =new Intent(MainActivity.this,HomeActivity.class);
                     startActivity(intent);
                 }else {
@@ -163,6 +175,7 @@ public class MainActivity extends AppCompatActivity {
                    .addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
+                            mDialog.dismiss();
                             if (task.isSuccessful()){
                                 Intent intent =new Intent(MainActivity.this,CompleteProfileActivity.class);
                                 startActivity(intent);
@@ -182,11 +195,12 @@ public class MainActivity extends AppCompatActivity {
     private void login() {
         String email=mtextInputEmail.getText().toString();
         String password=mtextInputPassword.getText().toString();
-
+        mDialog.show();
         mAuthProvider.login(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if(task.isSuccessful()){
+                    mDialog.dismiss();
                     Intent intent=new Intent(MainActivity.this,HomeActivity.class);
                     startActivity(intent);
                 }else{

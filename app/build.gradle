@@ -44,7 +44,16 @@ dependencies {
 
     implementation 'com.github.d-max:spots-dialog:1.1@aar'
 
+
     implementation 'com.google.android.material:material:1.7.0'
+
+    implementation 'com.google.firebase:firebase-storage:20.0.0'
+    implementation 'id.zelory:compressor:2.1.1'
+    implementation 'com.squareup.picasso:picasso:2.5.2'
+
+
+    implementation 'com.google.android.material:material:1.1.0-alpha10'
+
     implementation 'androidx.appcompat:appcompat:1.4.0'
     implementation 'com.google.android.material:material:1.7.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
@@ -55,4 +64,5 @@ dependencies {
 
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
+
 

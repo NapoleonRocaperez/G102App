@@ -3,6 +3,8 @@ package com.example.g102app.activities;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -25,6 +27,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import dmax.dialog.SpotsDialog;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -36,6 +39,7 @@ public class RegisterActivity extends AppCompatActivity {
     Button mButtonRegister;
     AuthProviders mAutProvider;
     UsersProviders mUserProviders;
+    AlertDialog mDialog;
 
 
 
@@ -55,6 +59,12 @@ public class RegisterActivity extends AppCompatActivity {
 
        mAutProvider=new AuthProviders();
        mUserProviders=new UsersProviders();
+
+        mDialog = new SpotsDialog.Builder()
+                .setContext(this)
+                .setMessage("Espere un momento...")
+                .setCancelable(false).build();
+
 
 
 
@@ -106,6 +116,7 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void createUser(final String email,String password, final String username) {
+        mDialog.show();
         mAutProvider.register(email, password)
         .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
@@ -121,8 +132,12 @@ public class RegisterActivity extends AppCompatActivity {
                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
+                            mDialog.dismiss();
                             if (task.isSuccessful()){
                                 Toast.makeText(RegisterActivity.this, "El usuario se almaceno correctamente", Toast.LENGTH_SHORT).show();
+                                Intent intent =new Intent(RegisterActivity.this,HomeActivity.class);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
+                                startActivity(intent);
                             }else {
                                 Toast.makeText(RegisterActivity.this, "no se pudo almacenar en la base de datos", Toast.LENGTH_SHORT).show();
                             }
@@ -132,6 +147,7 @@ public class RegisterActivity extends AppCompatActivity {
 
                     Toast.makeText(RegisterActivity.this, "El usuario se registro correctamente", Toast.LENGTH_SHORT).show();
                 }else {
+                    mDialog.dismiss();
                     Toast.makeText(RegisterActivity.this, "No se pudo registrar el usuario", Toast.LENGTH_SHORT).show();
                 }
             }

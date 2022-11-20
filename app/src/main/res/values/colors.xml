@@ -9,4 +9,6 @@
     <color name="white">#FFFFFFFF</color>
     <color name="transparente">@android:color/transparent</color>
     <color name="morado">#6D0375</color>
+    <color name="gris">#C8C7BF</color>
+    <color name="azulobscuro">#0A0A17</color>
 </resources>
