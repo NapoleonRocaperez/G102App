@@ -26,6 +26,7 @@ public class HomeActivity extends AppCompatActivity {
         bottomNavigation= findViewById(R.id.bottom_navigation);
         bottomNavigation.setOnNavigationItemSelectedListener(navigationItemSelectedListener);
         openFragment(new HomeFragment());
+
     }
 
     public void openFragment(Fragment fragment) {

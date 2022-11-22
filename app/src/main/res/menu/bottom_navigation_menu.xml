@@ -8,11 +8,11 @@
     <item
         android:id="@+id/itemFiltros"
         android:icon="@drawable/ic__filterv"
-        android:title="SMS" />
+        android:title="Filtros" />
     <item
         android:id="@+id/itemChats"
         android:icon="@drawable/ic_chats"
-        android:title="Notification" />
+        android:title="Chats" />
 
     <item
         android:id="@+id/itemPerfil"
