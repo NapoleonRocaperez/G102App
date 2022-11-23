@@ -61,7 +61,7 @@
                 app:cardBackgroundColor="@color/white"
                 android:layout_weight="1"
                 android:layout_marginLeft="10dp"
-                app:cardCornerRadius="15dp"
+                app:cardCornerRadius="20dp"
                 >
 
                 <ImageView
