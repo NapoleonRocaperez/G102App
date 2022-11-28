@@ -3,12 +3,16 @@ package com.example.g102app.activities;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -19,16 +23,19 @@ import android.widget.Toast;
 import com.example.g102app.R;
 import com.example.g102app.models.Post;
 import com.example.g102app.providers.AuthProviders;
+import com.example.g102app.providers.ImageProvider;
 import com.example.g102app.providers.PostProviders;
 import com.example.g102app.utils.FileUtil;
-import com.example.g102app.utils.ImageProvider;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Date;
 
 import dmax.dialog.SpotsDialog;
 
@@ -55,8 +62,14 @@ public class PostActivity extends AppCompatActivity {
     String mDescription="";
     AuthProviders mAuthProviders;
     AlertDialog mDialog;
+    AlertDialog.Builder mBuilderSelector;
+    CharSequence options[];
 
+    String mAbsolutePhotoPath;
+    String mPhotoPath;
+    File mPhotoFile;
 
+    private final int PHOTO_REQUEST_CODE=3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +97,10 @@ public class PostActivity extends AppCompatActivity {
                 .setMessage("Espere un momento...")
                 .setCancelable(false).build();
 
+        mBuilderSelector=new AlertDialog.Builder(this);
+        mBuilderSelector.setTitle("selecciones la opcion");
+        options=new CharSequence[]{"Imagen de galeria","Tomar foto"};
+
         mButtonPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -94,14 +111,16 @@ public class PostActivity extends AppCompatActivity {
         mImageViewPost1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                openGallery(Gallery_REQUEST_CODE);
+                selectOptionImage(Gallery_REQUEST_CODE);
+                //openGallery(Gallery_REQUEST_CODE);
             }
         });
 
         mImageViewPost2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                openGallery(Gallery_REQUEST_CODE_2);
+                selectOptionImage(Gallery_REQUEST_CODE_2);
+                //openGallery(Gallery_REQUEST_CODE_2);
             }
         });
 
@@ -139,6 +158,50 @@ public class PostActivity extends AppCompatActivity {
         });
     }
 
+    private void selectOptionImage(int requestCode) {
+        mBuilderSelector.setItems(options, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if(which==0){
+                    openGallery(requestCode);
+                }else if(which==1){
+                    takePhoto();
+                }
+            }
+        });
+        mBuilderSelector.show();
+    }
+
+    private void takePhoto() {
+        //.makeText(this, "Selecciono tomar foto", Toast.LENGTH_SHORT).show();
+        Intent takePictureIntent=new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if(takePictureIntent.resolveActivity(getPackageManager()) !=null){
+            File photoFile=null;
+            try {
+
+                photoFile=createPhotoFile();
+            }catch (Exception e){
+                Toast.makeText(this, "Hubo un error con el archivo"+e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+            if(photoFile !=null){
+                Uri photoUri= FileProvider.getUriForFile(PostActivity.this,"com.example.g102app",photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,photoUri);
+                startActivityForResult(takePictureIntent,PHOTO_REQUEST_CODE);
+            }
+        }
+    }
+
+    private File createPhotoFile() throws IOException {
+        File storageDir=getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File photoFile=File.createTempFile(
+                new Date()+ "_photo",
+                ".jpg",
+                storageDir
+        );
+        mPhotoPath = "file:" + photoFile.getAbsolutePath();
+        mAbsolutePhotoPath = photoFile.getAbsolutePath();
+        return photoFile;
+    }
 
 
     private void clickPost() {
@@ -261,6 +324,12 @@ public class PostActivity extends AppCompatActivity {
                 Log.d("ERROR", "Se produjo un error " + e.getMessage());
                 Toast.makeText(this, "Se produjo un error " + e.getMessage(), Toast.LENGTH_LONG).show();
             }
+        }
+        /* VALIDACION DE IMAGEN CON FOTO  */
+        if (requestCode == PHOTO_REQUEST_CODE && resultCode == RESULT_OK) {
+            mImageFile = null;
+            mPhotoFile=new File(mAbsolutePhotoPath);
+            Picasso.with(PostActivity.this).load(mPhotoPath).into(mImageViewPost1);
         }
 
   }
